@@ -1,222 +1,247 @@
 <?php 
-	/**
-	* 
-	*/
+/**
+ * 
+ */
 	//define("PASS", "123");//若要设置密码请将define()前的斜线删去
-	class dir{
-		public $dir;
-		public $file;
-		public $dirdir;
-		public $notex;
-		public $notdir;
-		function __construct(){
-			$this->notex=array("php","js","tgz");//不允许显示的后缀名文件
-			$this->notdir=array("a","phpmyadmin");//不允许显示的文件夹
-			if ($_GET['dir']) {
-				foreach ($this->notdir as $key => $value) {
-					if(strtolower($_GET['dir'])==$value){
-						$_GET['dir']=".";
-					}
-				}
-				$tom=trim($_GET['dir']);
-				$tam=str_replace("..", ".", $tom);
-				$this->dir="./".$tam;
-			}else{
-				$this->dir=".";
-			}
-		}
-		function ex($string){
-			$ar=explode(".", $string);
-			$ex=array_pop($ar);
-			return strtolower($ex);
-		}
-		function open_dir(){
-			if(is_dir($this->dir)){
-				if($dh=opendir($this->dir)){
-					while(($file=readdir($dh))!==false){
-						$this->jugg($file);
-					}
-					sort($this->file);
-					sort($this->dirdir);
-					closedir($dh);
-				}
-			}else{
-				echo "error";
-			}
-		}
-		function jugg($jugg){
-			if($jugg!="."&&$jugg!=".."){
-				if (is_dir($this->dir."/".$jugg)) {
-					if(!in_array(strtolower($this->filename($jugg)), $this->notdir)){
-						$this->dirdir[]=$this->dir."/".$jugg;
-					}	
-				}else{
-					$ex=$this->ex($jugg);
-					if(!in_array($ex, $this->notex)){
-						$this->file[]=$this->dir."/".$jugg;
-					}
+class dir
+{
+	public $dir;
+	public $file = array();
+	public $dirdir = array();
+	public $notex;
+	public $notdir;
+	function __construct()
+	{
+		$this->notex = array("php", "js", "tgz", "dat");//不允许显示的后缀名文件
+		$this->notdir = array("a", "phpmyadmin");//不允许显示的文件夹
+		if ($_GET['dir']) {
+			foreach ($this->notdir as $key => $value) {
+				if (strtolower($_GET['dir']) == $value) {
+					$_GET['dir'] = ".";
 				}
 			}
-		}
-		function dirurl($dir){
-			$urf=substr($dir,2 );
-			return "?dir=".rawurlencode($urf);
-		}
-		function value($value){
-			$urf=substr($value,2 );
-			return $urf;
-		}
-		function type($file){
-			$ex=$this->ex($file);
-			switch ($ex) {
-				case 'png':
-				case 'jpg':
-				case 'gif':
-				case 'bmp':
-				case 'jpeg':
-					return "img";
-					break;
-				case 'torrent':
-					return "torrent";
-					break;
-				case 'mp3':
-					return "mp3";
-					break;
-				case 'mp4':
-				case 'ogg':
-				case 'webm':
-					return "video";
-					break;
-				case 'xls':
-				case 'xlsx':
-				case 'doc':
-				case 'docx':
-				case 'ppt':
-				case 'pptx':
-					return "other";
-					break;
-				case 'pdf':
-					return "pdf";
-					break;
-				case 'txt':
-				case 'json':
-				case 'xml':
-				case 'html':
-				case 'md':
-					return "text";
-					break;
-				default:
-					return "other";
-					break;
-			}
-		}
-		function download($file){
-			return "<a href=\"".$file."\" ><span class=\"glyphicon glyphicon-download-alt\"></span></a>";
-		}
-		function other($file){
-
-
-		}
-		function img($img){
-
-		}
-		function pdf($pdf){
-
-		}
-		function video($video){
-
-		}
-		function mp3($mp3){
-
-		}
-		function torrent($torrent){
-
-		}
-		function filename($file){
-			$ar=explode("/", $file);
-			return array_pop($ar);
-		}
-		function text($file){
-
-		}
-		function size($file){
-			$fz=filesize($file);
-			if ($fz>(1024*1024*1024)) {
-				return sprintf("%.2f",$fz/(1024*1024*1024))."GB";
-			}elseif ($fz>(1024*1024)) {
-				return sprintf("%.2f",$fz/(1024*1024))."MB";
-			}elseif($fz>1024){
-				return sprintf("%.2f",$fz/1024)."KB";
-			}else{
-				return $fz."B";
-			}
-		}
-		function mtime($file){
-			return date("Y-m-d H:i:s",filemtime($file));
-		}
-		function atime($file){
-			return date("Y-m-d H:i:s",fileatime($file));
-		}
-		function ctime($file){
-			return date("Y-m-d H:i:s",filectime($file));
-			
-		}
-		function icon($file){
-			$ex=$this->ex($file);
-			switch ($ex) {
-				case 'png':
-				case 'jpg':
-				case 'gif':
-				case 'bmp':
-				case 'jpeg':
-					return "glyphicon glyphicon-picture";
-					break;
-				case 'torrent':
-					return "glyphicon glyphicon-magnet";
-					break;
-				case 'mp3':
-					return "glyphicon glyphicon-music";
-					break;
-				case 'mp4':
-				case 'ogg':
-				case 'webm':
-					return "glyphicon glyphicon-film";
-					break;
-				case 'xls':
-				case 'xlsx':
-				case 'doc':
-				case 'docx':
-				case 'ppt':
-				case 'pptx':
-					return "glyphicon glyphicon-pencil";
-					break;
-				case 'pdf':
-					return "glyphicon glyphicon-book";
-					break;
-				case 'txt':
-				case 'md':
-					return "glyphicon glyphicon-file";
-					break;
-				default:
-					return "glyphicon glyphicon-stop";
-					break;
-			}
-		}
-		function pre(){
-			$dir_array=explode("/", $this->dir);
-			$num=count($dir_array);
-			if($num>=2){
-				@array_shift($dir_array);
-				$url="<a class=\"text-success\" href=?>/.</a>";
-				foreach ($dir_array as $key => $value) {
-					$step=$step.$value."/";
-					$url=$url."<a class=\"text-success\" href=\"?dir=".$step."\">/".$value."</a>";
-				}
-				return $url;
-			}
-
+			$tom = trim($_GET['dir']);
+			$tam = str_replace("..", ".", $tom);
+			$this->dir = "./" . $tam;
+		} else {
+			$this->dir = ".";
 		}
 	}
+	function ex($string)
+	{
+		$ar = explode(".", $string);
+		$ex = array_pop($ar);
+		return strtolower($ex);
+	}
+	function open_dir()
+	{
+		if (is_dir($this->dir)) {
+			if ($dh = opendir($this->dir)) {
+				while (($file = readdir($dh)) !== false) {
+					$this->jugg($file);
+				}
+				sort($this->file);
+				sort($this->dirdir);
+				closedir($dh);
+			}
+		} else {
+			echo "error";
+		}
+	}
+	function jugg($jugg)
+	{
+		if ($jugg != "." && $jugg != "..") {
+			if (is_dir($this->dir . "/" . $jugg)) {
+				if (!in_array(strtolower($this->filename($jugg)), $this->notdir)) {
+					$this->dirdir[] = $this->dir . "/" . $jugg;
+				}
+			} else {
+				$ex = $this->ex($jugg);
+				if (!in_array($ex, $this->notex)) {
+					$this->file[] = $this->dir . "/" . $jugg;
+				}
+			}
+		}
+	}
+	function dirurl($dir)
+	{
+		$urf = substr($dir, 2);
+		return "?dir=" . rawurlencode($urf);
+	}
+	function value($value)
+	{
+		$urf = substr($value, 2);
+		return $urf;
+	}
+	function type($file)
+	{
+		$ex = $this->ex($file);
+		switch ($ex) {
+			case 'png':
+			case 'jpg':
+			case 'gif':
+			case 'bmp':
+			case 'jpeg':
+				return "img";
+				break;
+			case 'torrent':
+				return "torrent";
+				break;
+			case 'mp3':
+				return "mp3";
+				break;
+			case 'mp4':
+			case 'ogg':
+			case 'webm':
+				return "video";
+				break;
+			case 'xls':
+			case 'xlsx':
+			case 'doc':
+			case 'docx':
+			case 'ppt':
+			case 'pptx':
+				return "other";
+				break;
+			case 'pdf':
+				return "pdf";
+				break;
+			case 'txt':
+			case 'json':
+			case 'xml':
+			case 'html':
+			case 'md':
+				return "text";
+				break;
+			default:
+				return "other";
+				break;
+		}
+	}
+	function download($file)
+	{
+		return "<a href=\"" . $file . "\" ><span class=\"glyphicon glyphicon-download-alt\"></span></a>";
+	}
+	function other($file)
+	{
+
+
+	}
+	function img($img)
+	{
+
+	}
+	function pdf($pdf)
+	{
+
+	}
+	function video($video)
+	{
+
+	}
+	function mp3($mp3)
+	{
+
+	}
+	function torrent($torrent)
+	{
+
+	}
+	function filename($file, $utf = 0)
+	{
+		if ($utf === 1)
+			$file = iconv("GBK", "UTF-8", $file);
+		$ar = explode("/", $file);
+		return array_pop($ar);
+	}
+	function text($file)
+	{
+
+	}
+	function size($file)
+	{
+		$fz = filesize($file);
+		if ($fz > (1024 * 1024 * 1024)) {
+			return sprintf("%.2f", $fz / (1024 * 1024 * 1024)) . "GB";
+		} elseif ($fz > (1024 * 1024)) {
+			return sprintf("%.2f", $fz / (1024 * 1024)) . "MB";
+		} elseif ($fz > 1024) {
+			return sprintf("%.2f", $fz / 1024) . "KB";
+		} else {
+			return $fz . "B";
+		}
+	}
+	function mtime($file)
+	{
+		return date("Y-m-d H:i:s", filemtime($file));
+	}
+	function atime($file)
+	{
+		return date("Y-m-d H:i:s", fileatime($file));
+	}
+	function ctime($file)
+	{
+		return date("Y-m-d H:i:s", filectime($file));
+
+	}
+	function icon($file)
+	{
+		$ex = $this->ex($file);
+		switch ($ex) {
+			case 'png':
+			case 'jpg':
+			case 'gif':
+			case 'bmp':
+			case 'jpeg':
+				return "glyphicon glyphicon-picture";
+				break;
+			case 'torrent':
+				return "glyphicon glyphicon-magnet";
+				break;
+			case 'mp3':
+				return "glyphicon glyphicon-music";
+				break;
+			case 'mp4':
+			case 'ogg':
+			case 'webm':
+				return "glyphicon glyphicon-film";
+				break;
+			case 'xls':
+			case 'xlsx':
+			case 'doc':
+			case 'docx':
+			case 'ppt':
+			case 'pptx':
+				return "glyphicon glyphicon-pencil";
+				break;
+			case 'pdf':
+				return "glyphicon glyphicon-book";
+				break;
+			case 'txt':
+			case 'md':
+				return "glyphicon glyphicon-file";
+				break;
+			default:
+				return "glyphicon glyphicon-stop";
+				break;
+		}
+	}
+	function pre()
+	{
+		$dir_array = explode("/", $this->dir);
+		$num = count($dir_array);
+		if ($num >= 2) {
+			@array_shift($dir_array);
+			$url = "<a class=\"text-success\" href=?>/.</a>";
+			foreach ($dir_array as $key => $value) {
+				$step = $step . $value . "/";
+				$url = $url . "<a class=\"text-success\" href=\"?dir=" . $step . "\">/" . $value . "</a>";
+			}
+			return $url;
+		}
+
+	}
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -246,14 +271,14 @@
 </head>
 <body>
 <?php
-if(defined("PASS")){
+if (defined("PASS")) {
 	session_start();
-	if ($_SESSION['user']==PASS) {
-	}else{
-		if($_POST['pass']==PASS){
-			$_SESSION['user']=PASS;
-		}else{
-?>
+	if ($_SESSION['user'] == PASS) {
+	} else {
+		if ($_POST['pass'] == PASS) {
+			$_SESSION['user'] = PASS;
+		} else {
+			?>
 	<div class="container">
 		<form method="POST" action="">
 			<div class="row">
@@ -276,15 +301,15 @@ if(defined("PASS")){
 	</div>
 
 <?php
-			return false;
-		}
-		
-	}
+return false;
+}
+
+}
 
 
 
 }
-$x=new dir();
+$x = new dir();
 $x->open_dir();
 
 ?>
@@ -298,8 +323,8 @@ $x->open_dir();
 			</div>
 			<div class="col-md-10">
 				<h3>
-<?php		
-	echo $x->pre();
+<?php	
+echo $x->pre();
 ?>				</h3>
 			</div>
 		</div>
@@ -311,22 +336,22 @@ $x->open_dir();
 				<th>下载</th>
 			</tr>
 <?php
-	foreach ($x->dirdir as $key => $value) {
-		echo "<tr>";
-			echo "<td><a href=\"".$x->dirurl($value)."\"><span class=\"glyphicon glyphicon-list\"> ".$x->filename($value)."</span></a></td>";
-				echo "<td>目录</td>";
-				echo "<td>".$x->mtime($value)."</td>";
-				echo "<td></td>";
-		echo "</tr>";
-	}
-	foreach ($x->file as $key => $value) {
-		echo "<tr>";
-			echo "<td><span class=\" click_onload ".$x->icon($value)." fileshow\" type=\"".$x->type($value)."\" value=\"".$x->value($value)."\"> ".$x->filename($value)."</span></td>";
-			echo "<td>".$x->size($value)."</td>";
-			echo "<td>".$x->mtime($value)."</td>";
-			echo "<td>".$x->download($value)."</td>";
-		echo "</tr>";
-	}
+foreach ($x->dirdir as $key => $value) {
+	echo "<tr>";
+	echo "<td><a href=\"" . $x->dirurl($value) . "\"><span class=\"glyphicon glyphicon-list\"> " . $x->filename($value, 1) . "</span></a></td>";
+	echo "<td>目录</td>";
+	echo "<td>" . $x->mtime($value) . "</td>";
+	echo "<td></td>";
+	echo "</tr>";
+}
+foreach ($x->file as $key => $value) {
+	echo "<tr>";
+	echo "<td><span class=\" click_onload " . $x->icon($value) . " fileshow\" type=\"" . $x->type($value) . "\" value=\"" . $x->value($value) . "\"> " . $x->filename($value, 1) . "</span></td>";
+	echo "<td>" . $x->size($value) . "</td>";
+	echo "<td>" . $x->mtime($value) . "</td>";
+	echo "<td>" . $x->download($value) . "</td>";
+	echo "</tr>";
+}
 
 
 
