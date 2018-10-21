@@ -120,7 +120,7 @@ class dir
 	}
 	function download($file)
 	{
-		return "<a href=\"" . $file . "\" ><span class=\"glyphicon glyphicon-download-alt\"></span></a>";
+		return "<a href=\"" .  iconv("GBK", "UTF-8", $file) . "\" ><span class=\"glyphicon glyphicon-download-alt\"></span></a>";
 	}
 	function other($file)
 	{
